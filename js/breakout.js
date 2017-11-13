@@ -32,47 +32,48 @@ class Breakout {
     constructor(canvas, interval, pw, ph, pc) {
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d');
+        this.leftKey = false;
+        this.rightKey = false;
         Breakout.width = canvas.width;
         Breakout.height = canvas.height;
         this.paddle = new Paddle(pw, ph, pc);
         this.paddle.setPosition(Breakout.width / 2,
-            Breakout.height * 4 / 5);
+            Breakout.height * 8 / 9);
         this.paddle.setSpeed(Breakout.width / 100);
-        setInterval(this.draw.apply(this), interval);
+        setInterval(this.draw.bind(this), interval);
 
+        window.addEventListener('keydown', this.keydown.bind(this));
+        window.addEventListener('keyup',this.keyup.bind(this));
     }
 
     keydown(evt) {
-        if (evt.keyCode === 37 /* ひだりキー */) {
+        if (evt.code === 'ArrowLeft' /* ひだりキー */) {
             this.leftKey = true;
-        } else if (evt.keyCode === 39 /* みぎキー */) {
+        } else if (evt.code === 'ArrowRight' /* みぎキー */) {
             this.rightKey = true;
         }
     }
 
     keyup(evt) {
-        if (evt.keyCode === 37 /* ひだりキー */) {
+        if (evt.code === 'ArrowLeft' /* ひだりキー */) {
             this.leftKey = false;
-        } else if (evt.keyCode === 39 /* みぎキー */) {
+        } else if (evt.code === 'ArrowRight' /* みぎキー */) {
             this.rightKey = false;
         }
     }
 
     draw() {
         this.context.clearRect(0, 0, Breakout.width, Breakout.height);
-
         if (this.leftKey) {
-            console.log('leftKey!');
             this.paddle.moveLeft();
         }
         if (this.rightKey) {
-            console.log('rightKey!');
             this.paddle.moveRight();
         }
-
         this.paddle.draw(this.context);
     }
 }
+
 class Paddle {
     constructor(width, height, color) {
         this.width = width;
@@ -85,6 +86,7 @@ class Paddle {
 
     /**
      * 描画処理するメソッド
+     *
      * @param context CanvasRenderingContext2D
      */
     draw(context) {
@@ -139,7 +141,7 @@ class Paddle {
     fixPosition() {
         const left = this.x - (this.width / 2);
         if (left < 0) {
-            this.x += ~~left;
+            this.x += Math.abs(left);
         }
 
         const right = this.x + (this.width / 2);
@@ -147,4 +149,24 @@ class Paddle {
             this.x -= right - Breakout.width;
         }
     }
+}
+class Ball {
+    constructor(radius, color) {
+        this.radius = radius;
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.dx = 0;
+        this.dy = 0;
+    }
+
+    /**
+     *移動速度と向きを指定する
+     * @param speed
+     * @param direction
+     */
+    setSpeed(speed,direction){
+
+    }
+
 }
