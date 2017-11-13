@@ -166,7 +166,75 @@ class Ball {
      * @param direction
      */
     setSpeed(speed,direction){
+        const rad = direction * Math.PI / 180;
+        this.dx = Math.cos(rad)*speed;
+        this.dy = Math.sin(rad)*speed;
+    }
 
+    /**
+     * 移動のメソッド
+     */
+    move(){
+        this.x += this.dx;
+        this.y += this.dy;
+    }
+    /**
+     * はみ出ないように位置を調整する
+     */
+    fixPosition() {
+       const left = this.x - this.radius;
+       if (left < 0){
+           this.x += Math.ads(left);
+           this.reflectionX();
+       }
+       const top = this.y - this.radius;
+       if(top < 0 ){
+           this.y += Math.ads(top);
+           this.reflectionY();
+       }
+       const right = this.x + this.radius;
+       if(right > Breakout.width){
+           this.x -= right - Breakout.width;
+           this.reflectionX();
+       }
+       const bottom = this.y + this.radius;
+       if(bottom > Breakout.height){
+           this.y -= bottom - Breakout.height;
+           this.reflectionY();
+       }
+    }
+
+    /**
+     * 移動スピードの左右反転
+     */
+    reflectionX(){
+        this.dx *= -1;
+    }
+
+    /**
+     * 移動スピードの上下反転
+     */
+    reflectionY(){
+        this.dy *= -1;
+    }
+
+    /**
+     * 描画処理をするメソッド
+     *
+     * @param context CanvasRenderinyContext
+     */
+    draw(context){
+        this.move();
+        this.fixPosition();
+
+        context.save();
+
+        context.fillStyle = this.color;
+        context.translate(this.x , this.y);
+        context.arc(0,0, this.radius, 0,2 * Math.PI);
+        context.fill();
+
+        context.restore()
     }
 
 }
