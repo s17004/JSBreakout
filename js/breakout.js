@@ -1,6 +1,4 @@
 window.addEventListener('DOMContentLoaded', () => {
-    console.log("breakout initializing...");
-
     // 初期化
     const canvas = document.getElementById('board');
     new Breakout({
@@ -33,6 +31,18 @@ class Breakout {
 
     static get height() {
         return Breakout.gameHight;
+    }
+
+    static get isGameOver() {
+        return Breakout._game_over === true;
+    }
+
+    static setGameOver(f) {
+        if (f instanceof Boolean) {
+            Breakout._game_over = f;
+            return;
+        }
+        Breakout._game_over = true;
     }
 
     constructor(options) {
@@ -99,10 +109,22 @@ class Breakout {
         if (this.rightKey) {
             this.paddle.moveRight();
         }
-        this.ball.draw(this.context);
+        if (Breakout.isGameOver) {
+            this.context.save();
+
+            this.context.fillStyle = "red";
+            this.context.font = "48pt Arial";
+            this.context.textAlign = "center";
+            this.context.fillText("GameOver", Breakout.width / 2, Breakout.height / 2);
+
+            this.context.restore();
+        } else {
+            this.ball.draw(this.context);
+        }
         this.paddle.draw(this.context);
     }
 }
+
 class Entity {
     constructor() {
         this.x = 0;
@@ -121,7 +143,6 @@ class Entity {
     }
 
     hit() {
-
     }
 }
 
@@ -201,6 +222,21 @@ class Paddle extends Entity {
             this.x -= right - Breakout.width;
         }
     }
+
+    /**
+     * 当たったあとのなにか
+     */
+    hit(ball) {
+        // ボールのpaddleの右4分の1にあるか
+        if (this.x + this.width / 4 < ball.x) {
+            ball.changeAngle();
+            return;
+        }
+        // ボールがpaddleの左4分の1にあるか
+        if (this.x - this.width / 4 > ball.x) {
+            ball.changeAngle(true);
+        }
+    }
 }
 
 class Ball {
@@ -258,6 +294,9 @@ class Ball {
         }
     }
 
+    /**
+     * 衝突判定のメソッド
+     */
     collision() {
         let isCollision = false;
         this.targetList.forEach((target) => {
@@ -268,7 +307,7 @@ class Ball {
                     Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
                 if (a <= this.radius) {
                     isCollision = true;
-                    target.hit();
+                    target.hit(this);
                 }
             }, this);
 
@@ -281,15 +320,32 @@ class Ball {
                 if (points[0].y < bb && bt < points[2].y) {
                     isCollision = true;
                     this.y -= bb - points[0].y;
-                    target.hit();
+                    target.hit(this);
                 }
             }
 
         }, this);
 
-
         return isCollision;
+    }
 
+    /**
+     * 反射角度を変える(5度)
+     */
+    changeAngle(ccw = false) {
+        let theta = Math.atan(this.dy / this.dx);
+        const speed = this.dx / Math.cos(theta);
+        if (ccw) {
+            theta -= Math.PI * 5 / 180;
+        } else {
+            theta += Math.PI * 5 / 180;
+        }
+        if (theta <= -0.7853981634 || theta >= 0.5235987756) {
+            // 変更なしにする
+            return;
+        }
+        this.dx = Math.cos(theta) * speed;
+        this.dy = Math.sin(theta) * speed;
     }
 
     /**
@@ -309,6 +365,7 @@ class Ball {
             this.y += Math.abs(top);
             this.reflectionY();
         }
+
         // 画面右側を超えているか判定と座標修正
         const right = this.x + this.radius;
         if (right > Breakout.width) {
@@ -317,10 +374,8 @@ class Ball {
         }
 
         // 画面下側を超えているか判定と一時的に座標修正
-        const bottom = this.y + this.radius;
-        if (bottom > Breakout.height) {
-            this.y -= bottom - Breakout.height;
-            this.reflectionY();
+        if (top > Breakout.height) {
+            Breakout.setGameOver();
         }
     }
 
@@ -360,5 +415,4 @@ class Ball {
 
         context.restore();
     }
-
 }
