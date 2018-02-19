@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
             height: 20
         }
     });
+    score = 0;
 });
 
 class Breakout {
@@ -312,6 +313,7 @@ class Block extends Entity {
     hit(ball) {
         ball.removeTarget(this);
         this.manager.removeTarget(this);
+        document.getElementById('score').innerHTML = score += 1;
     }
 }
 
