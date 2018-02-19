@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
             height: 20
         }
     });
+    score = 0;
 });
 
 class Breakout {
@@ -312,6 +313,7 @@ class Block extends Entity {
     hit(ball) {
         ball.removeTarget(this);
         this.manager.removeTarget(this);
+        document.getElementById("score").innerHTML = score += 1;
     }
 }
 
@@ -424,18 +426,18 @@ class Ball {
             const points = target.getCornerPoints();
             // 角チェック
             /*
-             points.forEach((point) => {
-             const a = Math.sqrt(
-             Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
-             if (a <= this.radius) {
-             collideSide = 3;
-             target.hit(this);
-             }
-             }, this);
-             if (collideSide !== 0) {
-             return false;
-             }
-             */
+            points.forEach((point) => {
+                const a = Math.sqrt(
+                    Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
+                if (a <= this.radius) {
+                    collideSide = 3;
+                    target.hit(this);
+                }
+            }, this);
+            if (collideSide !== 0) {
+                return false;
+            }
+            */
 
             // 各側面のチェック
             const bl = this.x - this.radius;
@@ -551,5 +553,11 @@ class Ball {
         context.fill();
 
         context.restore();
+
+
+        //document.getElementById("score").innerHTML = score += 1;
+
     }
 }
+
+
